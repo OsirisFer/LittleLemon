@@ -11,6 +11,8 @@ from django.http import HttpResponse
 
 from rest_framework import generics, viewsets
 from .serializers import MenuSerializer, BookingSerializer
+from rest_framework.permissions import IsAuthenticated
+
 
 # Create your views here.
 def home(request):
@@ -89,3 +91,5 @@ class SingleMenuItemView(generics.RetrieveUpdateAPIView, generics.DestroyAPIView
 class BookingViewSet(viewsets.ModelViewSet):
     queryset = SlotBooking.objects.all()
     serializer_class = BookingSerializer
+    permission_classes = [IsAuthenticated]
+

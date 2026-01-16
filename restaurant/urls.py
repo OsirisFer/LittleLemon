@@ -14,6 +14,8 @@ from . import views
 #     path('menu/<int:pk>', views.SingleMenuItemView.as_view(), name='single-menu-item'),
 
 # ]
+from rest_framework.authtoken.views import obtain_auth_token
+
 
 urlpatterns = [
     path('', views.home, name="home"),
@@ -29,4 +31,6 @@ urlpatterns = [
     # API (DRF)
     path('api/menu/', views.MenuItemsView.as_view(), name='menu-items'),
     path('api/menu/<int:pk>/', views.SingleMenuItemView.as_view(), name='single-menu-item'),
+    path('api-token-auth/', obtain_auth_token),
+
 ]
