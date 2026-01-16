@@ -13,10 +13,28 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+# from django.contrib import admin
+# from django.urls import path, include
+
+# urlpatterns = [
+#     path('admin/', admin.site.urls),
+#     path('', include('restaurant.urls')),
+#     path('restaurant/', include('restaurant.urls')),
+
+# ]
+ 
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from restaurant import views
+
+router = DefaultRouter()
+router.register(r'tables', views.BookingViewSet, basename='tables')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('restaurant.urls')),
+    path('', include('restaurant.urls')),  # tu sitio normal
+    path('restaurant/booking/', include(router.urls)),  # <-- el router
+    
 ]
+

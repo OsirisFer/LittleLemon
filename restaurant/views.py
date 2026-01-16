@@ -1,14 +1,16 @@
 # from django.http import HttpResponse
 from django.shortcuts import render
 from .forms import BookingForm
-from .models import Menu
+from .models import Menu, SlotBooking
 from django.core import serializers
-from .models import Booking
+from .models import SlotBooking
 from datetime import datetime
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 
+from rest_framework import generics, viewsets
+from .serializers import MenuSerializer, BookingSerializer
 
 # Create your views here.
 def home(request):
@@ -17,11 +19,17 @@ def home(request):
 def about(request):
     return render(request, 'about.html')
 
+# def reservations(request):
+#     date = request.GET.get('date',datetime.today().date())
+#     bookings = SlotBooking.objects.all()
+#     booking_json = serializers.serialize('json', bookings)
+#     return render(request, 'bookings.html',{"bookings":booking_json})
+
 def reservations(request):
-    date = request.GET.get('date',datetime.today().date())
-    bookings = Booking.objects.all()
+    bookings = SlotBooking.objects.all()
     booking_json = serializers.serialize('json', bookings)
-    return render(request, 'bookings.html',{"bookings":booking_json})
+    return render(request, 'bookings.html', {"bookings": booking_json})
+
 
 def book(request):
     form = BookingForm()
@@ -50,13 +58,13 @@ def display_menu_item(request, pk=None):
 def bookings(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        exist = Booking.objects.filter(
+        exist = SlotBooking.objects.filter(
             reservation_date=data['reservation_date'],
             reservation_slot=data['reservation_slot']
         ).exists()
 
         if not exist:
-            booking = Booking(
+            booking = SlotBooking(
                 first_name=data['first_name'],
                 reservation_date=data['reservation_date'],
                 reservation_slot=data['reservation_slot'],
@@ -66,7 +74,18 @@ def bookings(request):
             return HttpResponse("{'error':1}", content_type='application/json')
 
     date = request.GET.get('date', datetime.today().date())
-    bookings = Booking.objects.all().filter(reservation_date=date)
+    bookings = SlotBooking.objects.all().filter(reservation_date=date)
     booking_json = serializers.serialize('json', bookings)
     return HttpResponse(booking_json, content_type='application/json')
 
+class MenuItemsView(generics.ListCreateAPIView):
+    queryset = Menu.objects.all()
+    serializer_class = MenuSerializer
+
+class SingleMenuItemView(generics.RetrieveUpdateAPIView, generics.DestroyAPIView):
+    queryset = Menu.objects.all()
+    serializer_class = MenuSerializer
+
+class BookingViewSet(viewsets.ModelViewSet):
+    queryset = SlotBooking.objects.all()
+    serializer_class = BookingSerializer
